@@ -5,7 +5,8 @@ import {
   Link,
   useLocation,
 } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import { HomePage } from "../pages/Home";
 import { AboutUsPage } from "../pages/AboutUs";
 import { BlogsPage } from "../pages/Blogs";
@@ -33,7 +34,7 @@ function NavLink({ to, children, onClick }) {
   );
 }
 
-function NavBarContent({ open, setOpen }) {
+function NavBarContent({ open, setOpen, menus }) {
   return (
     <>
       {/* Navigation Bar */}
@@ -56,29 +57,18 @@ function NavBarContent({ open, setOpen }) {
 
             {/* Desktop Navigation Links */}
             <div className="hidden lg:flex items-center space-x-6">
-              <NavLink to="/">HOME</NavLink>
-              <NavLink to="/about">ABOUT US</NavLink>
-              <NavLink to="/river-soul">RIVER SOUL</NavLink>
-              <NavLink to="/blogs">BLOGS</NavLink>
-              <NavLink to="/gallery">GALLERY</NavLink>
-              <NavLink to="/contact">CONTACT</NavLink>
+              {menus.map((menu) => (
+                <NavLink key={menu.id} to={menu.route || "/"}>
+                  {menu.name.toUpperCase()}
+                </NavLink>
+              ))}
             </div>
 
             {/* Desktop Schedule Meeting Button */}
             <div className="hidden lg:block">
               <button className="bg-white text-[#0C343D] px-6 py-2 rounded-full font-medium hover:bg-gray-100 transition duration-200 flex items-center space-x-2">
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                 </svg>
                 <span>Schedule Meeting</span>
               </button>
@@ -138,24 +128,15 @@ function NavBarContent({ open, setOpen }) {
             </svg>
           </button>
           <div className="space-y-2">
-            <NavLink to="/" onClick={() => setOpen(false)}>
-              HOME
-            </NavLink>
-            <NavLink to="/about" onClick={() => setOpen(false)}>
-              ABOUT US
-            </NavLink>
-            <NavLink to="/river-soul" onClick={() => setOpen(false)}>
-              RIVER SOUL
-            </NavLink>
-            <NavLink to="/blogs" onClick={() => setOpen(false)}>
-              BLOGS
-            </NavLink>
-            <NavLink to="/gallery" onClick={() => setOpen(false)}>
-              GALLERY
-            </NavLink>
-            <NavLink to="/contact" onClick={() => setOpen(false)}>
-              CONTACT
-            </NavLink>
+            {menus.map((menu) => (
+              <NavLink
+                key={menu.id}
+                to={menu.route || "/"}
+                onClick={() => setOpen(false)}
+              >
+                {menu.name.toUpperCase()}
+              </NavLink>
+            ))}
 
             {/* Mobile Schedule Meeting Button */}
             <button className="w-full bg-white text-[#0C343D] px-6 py-3 rounded-full font-medium hover:bg-gray-100 transition duration-200 flex items-center justify-center space-x-2 mt-6">
@@ -183,12 +164,33 @@ function NavBarContent({ open, setOpen }) {
 
 export function Navigation() {
   const [open, setOpen] = useState(false);
+  const [menus, setMenus] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const NavApi = "http://river_soul_api.test/api/navigation-menus/active";
+
+  // Fetch active navigation menus from API
+  const fetchMenus = async () => {
+      try {
+        const response = await axios.get(NavApi);
+        if (response.data.success) {
+          setMenus(response.data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching navigation menus:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+  useEffect(() => {
+    fetchMenus();
+  }, []);
 
   return (
     <BrowserRouter>
       <div className="flex flex-col min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
         {/* Navigation Bar */}
-        <NavBarContent open={open} setOpen={setOpen} />
+        <NavBarContent open={open} setOpen={setOpen} menus={menus} />
 
         {/* Routes - flex-1 to take remaining space */}
         <div className="routes-wrapper pt-16">
