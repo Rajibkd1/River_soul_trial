@@ -12,6 +12,7 @@ import { BlogsPage } from "../pages/Blogs";
 import { ContactPage } from "../pages/Contact";
 import { GalleryPage } from "../pages/Gallery";
 import { RiverSoul } from "../pages/RiverSoul";
+import NavigationManager from "../admin/Navigation/NavigationManager";
 import logo from "../assets/Frame 1000007176.png";
 import "../app.css";
 
@@ -198,6 +199,7 @@ export function Navigation() {
             <Route path="/blogs" element={<BlogsPage />} />
             <Route path="/gallery" element={<GalleryPage />} />
             <Route path="/contact" element={<ContactPage />} />
+            <Route path="/admin/navigation" element={<NavigationManager />} />
           </Routes>
         </div>
       </div>
